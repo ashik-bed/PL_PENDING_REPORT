@@ -21,11 +21,16 @@ def read_file(uploaded_file):
     if uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file, skiprows=1)
     elif uploaded_file.name.endswith(".xls"):
-        st.error("❌ .xls files are not supported. Please convert to .xlsx")
-        return None
-    else:
+        try:
+            import xlrd  # ensure xlrd is installed
+        except ImportError:
+            st.error("❌ Please install xlrd: pip install xlrd>=2.0.1")
+            return None
+        df = pd.read_excel(uploaded_file, engine="xlrd", skiprows=1)
+    else:  # .xlsx
         df = pd.read_excel(uploaded_file, engine="openpyxl", skiprows=1)
     return df
+
 
 if report_type == "Pending Tracker" and pending_file:
     try:
